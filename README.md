@@ -15,6 +15,12 @@ A **production-ready Python application** for scraping job postings from multipl
 - **✂️ Multi-Select Management**: Archive, delete, restore multiple jobs at once
 - **📈 Application Tracking**: Status, interview dates, notes, follow-ups
 - **💾 Auto-Save**: Automatically updates all databases on every action
+
+## 🚀 Installation
+Prerequisites
+Python 3.8+
+ChromeDriver (for Selenium screenshots)
+Tesseract OCR (optional but recommended)
 ## 🎯 Quick Start
 
 ```bash
