@@ -17,10 +17,10 @@ A **production-ready Python application** for scraping job postings from multipl
 - **💾 Auto-Save**: Automatically updates all databases on every action
 
 ## 🚀 Installation
-- **Prerequisites
-- **Python 3.8+
-- **ChromeDriver (for Selenium screenshots)
-- **Tesseract OCR (optional but recommended)
+- Prerequisites
+- Python 3.8+
+- ChromeDriver (for Selenium screenshots)
+- Tesseract OCR (optional but recommended)
 ## 🎯 Quick Start
 
 ```bash
