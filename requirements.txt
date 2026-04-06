@@ -1,7 +1,24 @@
+# Web Scraping
 requests>=2.28.0
 beautifulsoup4>=4.11.0
+
+# Automation & Screenshots
 selenium>=4.10.0
+pillow>=9.5.0
+
+# Data Processing
 pandas>=1.5.0
 openpyxl>=3.10.0
-pillow>=9.5.0
+
+# OCR
 pytesseract>=0.3.10
+
+# Optional: Database
+# sqlalchemy>=2.0.0
+# psycopg2-binary>=2.9.0
+
+# Development
+# black>=23.0.0
+# flake8>=6.0.0
+# mypy>=1.0.0
+# pytest>=7.0.0
