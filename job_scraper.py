@@ -77,10 +77,16 @@ def parse_multi_selection(input_str: str, max_num: int) -> List[int]:
     except:
         return []
 
+
+# ============================================================================
+# CLASS: TextAnalyzer:
+
+# ============================================================================
 class TextAnalyzer:
     """Analyzes extracted text to find job information."""
     
     @staticmethod
+    # METHOD: extract_salary
     def extract_salary(text: str) -> Optional[str]:
         """Extract salary from text."""
         patterns = [
@@ -96,6 +102,7 @@ class TextAnalyzer:
         return None
     
     @staticmethod
+    # METHOD: extract_location
     def extract_location(text: str) -> Optional[str]:
         """Extract location from text."""
         patterns = [
@@ -110,6 +117,7 @@ class TextAnalyzer:
         return None
     
     @staticmethod
+    # METHOD: extract_job_title
     def extract_job_title(text: str) -> Optional[str]:
         """Extract job title from text."""
         patterns = [
@@ -124,6 +132,7 @@ class TextAnalyzer:
         return None
     
     @staticmethod
+    # METHOD: extract_company
     def extract_company(text: str) -> Optional[str]:
         """Extract company name from text."""
         patterns = [
@@ -137,9 +146,15 @@ class TextAnalyzer:
                 return company.strip()
         return None
 
+
+# ============================================================================
+# CLASS: ScreenshotCapture:
+
+# ============================================================================
 class ScreenshotCapture:
     """Handles screenshot capture with OCR text extraction."""
     
+    # METHOD: __init__
     def __init__(self) -> None:
         self.screenshots_dir = 'job_screenshots'
         self.extracted_text_dir = 'extracted_text'
@@ -148,6 +163,7 @@ class ScreenshotCapture:
         self.text_analyzer = TextAnalyzer()
         self.ocr_available = self._check_tesseract()  # ✨ CHECK IF TESSERACT IS AVAILABLE
     
+    # METHOD: _check_tesseract
     def _check_tesseract(self) -> bool:
         """Check if Tesseract is installed."""
         try:
@@ -160,6 +176,7 @@ class ScreenshotCapture:
             print("    Install from: https://github.com/UB-Mannheim/tesseract/wiki")
             return False
     
+    # METHOD: extract_text_from_image
     def extract_text_from_image(self, image_path: str) -> str:
         """Extract text from image using OCR."""
         if not self.ocr_available:
@@ -175,6 +192,7 @@ class ScreenshotCapture:
             logger.error(f"Error extracting text: {str(e)}")
             return ""
     
+    # METHOD: analyze_text_for_info
     def analyze_text_for_info(self, text: str) -> Dict[str, Optional[str]]:
         """Analyze extracted text to find missing job info."""
         if not self.ocr_available or "[OCR not available" in text:
@@ -192,6 +210,7 @@ class ScreenshotCapture:
             'salary': self.text_analyzer.extract_salary(text),
         }
     
+    # METHOD: capture_full_page_screenshot
     def capture_full_page_screenshot(self, url: str, job_id: str) -> Optional[Dict[str, Any]]:
         """Capture full page screenshots by scrolling with text extraction."""
         try:
@@ -252,6 +271,7 @@ class ScreenshotCapture:
             logger.error(f"Error capturing screenshots: {str(e)}")
             return None
     
+    # METHOD: capture_single_screenshot
     def capture_single_screenshot(self, url: str, job_id: str) -> Optional[Dict[str, Any]]:
         """Capture single screenshot with text extraction."""
         try:
@@ -290,6 +310,7 @@ class ScreenshotCapture:
             logger.error(f"Error: {str(e)}")
             return None
     
+    # METHOD: open_all_screenshots
     def open_all_screenshots(self, screenshot_paths: List[str]) -> None:
         """Open screenshots in image viewer."""
         if not screenshot_paths:
@@ -308,6 +329,11 @@ class ScreenshotCapture:
         except Exception as e:
             logger.error(f"Error: {str(e)}")
 
+
+# ============================================================================
+# CLASS: ApplicationProgress:
+
+# ============================================================================
 class ApplicationProgress:
     """Track application progress."""
     
@@ -318,6 +344,7 @@ class ApplicationProgress:
     STATUS_REJECTED = "Rejected"
     VALID_STATUSES = [STATUS_NOT_APPLIED, STATUS_APPLIED, STATUS_INTERVIEW, STATUS_OFFER, STATUS_REJECTED]
     
+    # METHOD: __init__
     def __init__(self) -> None:
         self.status: str = self.STATUS_NOT_APPLIED
         self.applied_date: Optional[str] = None
@@ -328,6 +355,7 @@ class ApplicationProgress:
         self.last_follow_up: Optional[str] = None
         self.next_follow_up: Optional[str] = None
     
+    # METHOD: set_status
     def set_status(self, status: str) -> None:
         if status not in self.VALID_STATUSES:
             raise ValueError(f"Invalid status")
@@ -335,18 +363,22 @@ class ApplicationProgress:
         if status == self.STATUS_APPLIED and not self.applied_date:
             self.applied_date = datetime.now().isoformat()
     
+    # METHOD: add_interview_date
     def add_interview_date(self, interview_date: str) -> None:
         self.interview_dates.append(interview_date)
         if self.status != self.STATUS_INTERVIEW:
             self.status = self.STATUS_INTERVIEW
     
+    # METHOD: add_note
     def add_note(self, note: str) -> None:
         self.notes.append({'timestamp': datetime.now().isoformat(), 'text': note})
     
+    # METHOD: set_follow_up
     def set_follow_up(self, follow_up_date: str) -> None:
         self.last_follow_up = datetime.now().isoformat()
         self.next_follow_up = follow_up_date
     
+    # METHOD: to_dict
     def to_dict(self) -> Dict[str, Any]:
         return {
             'status': self.status,
@@ -359,6 +391,7 @@ class ApplicationProgress:
             'next_follow_up': self.next_follow_up
         }
     
+    # METHOD: from_dict
     def from_dict(self, data: Dict[str, Any]) -> None:
         self.status = data.get('status', self.STATUS_NOT_APPLIED)
         self.applied_date = data.get('applied_date')
@@ -369,9 +402,15 @@ class ApplicationProgress:
         self.last_follow_up = data.get('last_follow_up')
         self.next_follow_up = data.get('next_follow_up')
 
+
+# ============================================================================
+# CLASS: JobScraper:
+
+# ============================================================================
 class JobScraper:
     """Main job scraper class with auto-save."""
     
+    # METHOD: __init__
     def __init__(self) -> None:
         self.headers: Dict[str, str] = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -381,6 +420,7 @@ class JobScraper:
         self.screenshot_capture = ScreenshotCapture()
         self.auto_save = True  # ✨ AUTO-SAVE ENABLED
     
+    # METHOD: auto_save_all
     def auto_save_all(self) -> None:
         """Auto-save to all databases (JSON, CSV, Excel)."""
         if not self.auto_save:
@@ -395,6 +435,7 @@ class JobScraper:
         except Exception as e:
             logger.error(f"Auto-save error: {str(e)}")
     
+    # METHOD: scrape_linkedin_job
     def scrape_linkedin_job(self, job_url: str) -> Optional[Dict[str, Any]]:
         """Scrape LinkedIn job."""
         try:
@@ -449,6 +490,7 @@ class JobScraper:
             logger.error(f"Error scraping LinkedIn: {str(e)}")
             return None
     
+    # METHOD: scrape_indeed_job
     def scrape_indeed_job(self, job_url: str) -> Optional[Dict[str, Any]]:
         """Scrape Indeed job."""
         try:
@@ -510,6 +552,7 @@ class JobScraper:
             logger.error(f"Error scraping Indeed: {str(e)}")
             return None
     
+    # METHOD: scrape_generic_job
     def scrape_generic_job(self, job_url: str, config: Optional[Dict[str, str]] = None) -> Optional[Dict[str, Any]]:
         """Scrape generic job portal."""
         try:
@@ -556,10 +599,12 @@ class JobScraper:
             logger.error(f"Error scraping generic: {str(e)}")
             return None
     
+    # METHOD: _generate_job_id
     def _generate_job_id(self) -> str:
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
         return f"job_{timestamp}"
     
+    # METHOD: detect_job_source
     def detect_job_source(self, job_url: str) -> str:
         url_lower = job_url.lower()
         if 'linkedin.com' in url_lower:
@@ -568,6 +613,7 @@ class JobScraper:
             return 'indeed'
         return 'generic'
     
+    # METHOD: auto_fill_from_screenshot
     def auto_fill_from_screenshot(self, job: Dict[str, Any], found_info: Dict[str, Optional[str]]) -> None:
         """Auto-fill missing job info from screenshot text analysis."""
         filled_count = 0
@@ -599,6 +645,7 @@ class JobScraper:
             if self.screenshot_capture.ocr_available:
                 print("   ℹ️  No missing fields to auto-fill")
     
+    # METHOD: scrape_multiple_jobs
     def scrape_multiple_jobs(self, job_urls: List[str], sources: Optional[List[str]] = None, capture_screenshots: bool = False, full_page: bool = False) -> List[Dict[str, Any]]:
         """Scrape multiple jobs with screenshots and auto-fill."""
         if sources is None:
@@ -637,6 +684,7 @@ class JobScraper:
         
         return self.jobs_data
     
+    # METHOD: capture_job_screenshots
     def capture_job_screenshots(self, job_index: int, is_archived: bool = False, full_page: bool = True) -> None:
         """Capture screenshots for a job and auto-fill missing info."""
         jobs_list = self.archived_jobs if is_archived else self.jobs_data
@@ -668,6 +716,7 @@ class JobScraper:
                 # ✨ AUTO-SAVE AFTER CAPTURING
                 self.auto_save_all()
     
+    # METHOD: view_job_screenshots
     def view_job_screenshots(self, job_index: int, is_archived: bool = False) -> None:
         """View job screenshots and extracted text."""
         jobs_list = self.archived_jobs if is_archived else self.jobs_data
@@ -701,6 +750,7 @@ class JobScraper:
                     print(full_text)
                     print("="*80)
     
+    # METHOD: edit_job
     def edit_job(self, job_index: int, is_archived: bool = False) -> None:
         """Edit job information."""
         jobs_list = self.archived_jobs if is_archived else self.jobs_data
@@ -816,6 +866,7 @@ class JobScraper:
         if modified:
             self.auto_save_all()
     
+    # METHOD: view_job_details
     def view_job_details(self, job_index: int, is_archived: bool = False) -> None:
         """View complete job details."""
         jobs_list = self.archived_jobs if is_archived else self.jobs_data
@@ -885,6 +936,7 @@ class JobScraper:
         
         print("\n" + "="*80)
     
+    # METHOD: archive_job
     def archive_job(self, job_index: int, reason: Optional[str] = None) -> None:
         """Archive a single job."""
         if 0 <= job_index < len(self.jobs_data):
@@ -902,6 +954,7 @@ class JobScraper:
             # ✨ AUTO-SAVE AFTER ARCHIVING
             self.auto_save_all()
     
+    # METHOD: archive_multiple_jobs
     def archive_multiple_jobs(self, indices: List[int], reason: Optional[str] = None) -> None:
         """Archive multiple jobs at once."""
         if not indices:
@@ -930,6 +983,7 @@ class JobScraper:
         # ✨ AUTO-SAVE AFTER ARCHIVING MULTIPLE
         self.auto_save_all()
     
+    # METHOD: unarchive_job
     def unarchive_job(self, archived_index: int) -> None:
         """Restore archived job."""
         if 0 <= archived_index < len(self.archived_jobs):
@@ -945,6 +999,7 @@ class JobScraper:
             # ✨ AUTO-SAVE AFTER RESTORING
             self.auto_save_all()
     
+    # METHOD: delete_job
     def delete_job(self, job_index: int, is_archived: bool = False) -> None:
         """Delete a single job permanently from memory AND all files."""
         jobs_list = self.archived_jobs if is_archived else self.jobs_data
@@ -978,6 +1033,7 @@ class JobScraper:
             # ✨ AUTO-SAVE AFTER DELETING
             self.auto_save_all()
     
+    # METHOD: delete_multiple_jobs
     def delete_multiple_jobs(self, indices: List[int], is_archived: bool = False) -> None:
         """Delete multiple jobs at once (permanently from ALL files)."""
         jobs_list = self.archived_jobs if is_archived else self.jobs_data
@@ -1021,12 +1077,14 @@ class JobScraper:
         # ✨ AUTO-SAVE AFTER DELETING MULTIPLE
         self.auto_save_all()
     
+    # METHOD: _delete_from_files
     def _delete_from_files(self, job_id: str) -> None:
         """Delete job from all saved files."""
         self._delete_from_json(job_id)
         self._delete_from_csv(job_id)
         self._delete_from_excel(job_id)
     
+    # METHOD: _delete_from_json
     def _delete_from_json(self, job_id: str) -> None:
         """Delete from JSON file."""
         filename = 'jobs_data.json'
@@ -1045,6 +1103,7 @@ class JobScraper:
         except Exception as e:
             logger.error(f"JSON error: {str(e)}")
     
+    # METHOD: _delete_from_csv
     def _delete_from_csv(self, job_id: str) -> None:
         """Delete from CSV file."""
         filename = 'jobs_data.csv'
@@ -1062,6 +1121,7 @@ class JobScraper:
         except Exception as e:
             logger.error(f"CSV error: {str(e)}")
     
+    # METHOD: _delete_from_excel
     def _delete_from_excel(self, job_id: str) -> None:
         """Delete from Excel file."""
         filename = 'jobs_data.xlsx'
@@ -1080,12 +1140,15 @@ class JobScraper:
         except Exception as e:
             logger.error(f"Excel error: {str(e)}")
     
+    # METHOD: get_active_jobs_count
     def get_active_jobs_count(self) -> int:
         return len(self.jobs_data)
     
+    # METHOD: get_archived_jobs_count
     def get_archived_jobs_count(self) -> int:
         return len(self.archived_jobs)
     
+    # METHOD: load_from_json
     def load_from_json(self, filename: str = 'jobs_data.json') -> int:
         """Load from JSON."""
         try:
@@ -1123,6 +1186,11 @@ class JobScraper:
                 if 'progress' in jd and isinstance(jd['progress'], dict):
                     job['progress'].from_dict(jd['progress'])
                 
+                # Convert "nan" strings to None (from Excel/CSV exports)
+                for key in ['company', 'location', 'salary', 'job_description', 'application_process', 'url']:
+                    if job.get(key) == 'nan' or job.get(key) == 'None':
+                        job[key] = None
+                
                 if job.get('is_archived'):
                     self.archived_jobs.append(job)
                 else:
@@ -1135,6 +1203,7 @@ class JobScraper:
             logger.error(f"JSON load error: {str(e)}")
             return 0
     
+    # METHOD: load_from_csv
     def load_from_csv(self, filename: str = 'jobs_data.csv') -> int:
         """Load from CSV."""
         try:
@@ -1166,6 +1235,11 @@ class JobScraper:
                     'auto_filled_from_screenshot': bool(row.get('auto_filled_from_screenshot')) if 'auto_filled_from_screenshot' in df.columns else False
                 }
                 
+                # Convert "nan" strings to None (from CSV exports)
+                for key in ['company', 'location', 'salary', 'job_description', 'application_process', 'url']:
+                    if pd.isna(job.get(key)) or job.get(key) == 'nan' or job.get(key) == 'None':
+                        job[key] = None
+                
                 if pd.notna(row.get('status')):
                     job['progress'].status = row.get('status')
                 if pd.notna(row.get('applied_date')):
@@ -1189,6 +1263,7 @@ class JobScraper:
             logger.error(f"CSV load error: {str(e)}")
             return 0
     
+    # METHOD: load_from_excel
     def load_from_excel(self, filename: str = 'jobs_data.xlsx') -> int:
         """Load from Excel."""
         try:
@@ -1220,6 +1295,11 @@ class JobScraper:
                     'auto_filled_from_screenshot': bool(row.get('Auto Filled')) if 'Auto Filled' in df.columns else False
                 }
                 
+                # Convert "nan" strings to None (from Excel exports)
+                for key in ['company', 'location', 'salary', 'job_description', 'application_process', 'url']:
+                    if pd.isna(job.get(key)) or job.get(key) == 'nan' or job.get(key) == 'None':
+                        job[key] = None
+                
                 if pd.notna(row.get('Status')):
                     job['progress'].status = row.get('Status')
                 if pd.notna(row.get('Applied Date')):
@@ -1243,6 +1323,7 @@ class JobScraper:
             logger.error(f"Excel load error: {str(e)}")
             return 0
     
+    # METHOD: update_job_progress
     def update_job_progress(self, job_index: int, new_status: str, notes: Optional[str] = None) -> None:
         """Update progress."""
         if 0 <= job_index < len(self.jobs_data):
@@ -1255,6 +1336,7 @@ class JobScraper:
             # ✨ AUTO-SAVE AFTER UPDATING PROGRESS
             self.auto_save_all()
     
+    # METHOD: add_interview_date
     def add_interview_date(self, job_index: int, date: str) -> None:
         """Add interview date."""
         if 0 <= job_index < len(self.jobs_data):
@@ -1264,6 +1346,7 @@ class JobScraper:
             # ✨ AUTO-SAVE AFTER ADDING INTERVIEW
             self.auto_save_all()
     
+    # METHOD: add_note
     def add_note(self, job_index: int, note: str) -> None:
         """Add note."""
         if 0 <= job_index < len(self.jobs_data):
@@ -1273,6 +1356,7 @@ class JobScraper:
             # ✨ AUTO-SAVE AFTER ADDING NOTE
             self.auto_save_all()
     
+    # METHOD: set_follow_up
     def set_follow_up(self, job_index: int, date: str) -> None:
         """Set follow-up."""
         if 0 <= job_index < len(self.jobs_data):
@@ -1282,6 +1366,7 @@ class JobScraper:
             # ✨ AUTO-SAVE AFTER SETTING FOLLOW-UP
             self.auto_save_all()
     
+    # METHOD: _serialize_job_data
     def _serialize_job_data(self, job: Dict[str, Any]) -> Dict[str, Any]:
         """Serialize job."""
         ser = job.copy()
@@ -1289,9 +1374,11 @@ class JobScraper:
             ser['progress'] = ser['progress'].to_dict()
         return ser
     
+    # METHOD: _get_all_jobs
     def _get_all_jobs(self) -> List[Dict[str, Any]]:
         return self.jobs_data + self.archived_jobs
     
+    # METHOD: save_to_json
     def save_to_json(self, filename: str = 'jobs_data.json') -> None:
         """Save to JSON."""
         try:
@@ -1303,6 +1390,7 @@ class JobScraper:
         except Exception as e:
             logger.error(f"Save error: {str(e)}")
     
+    # METHOD: append_to_json
     def append_to_json(self, filename: str = 'jobs_data.json') -> None:
         """Append to JSON."""
         try:
@@ -1329,6 +1417,7 @@ class JobScraper:
             logger.error(f"Append error: {str(e)}")
             print(f"❌ Error: {str(e)}")
     
+    # METHOD: save_to_csv
     def save_to_csv(self, filename: str = 'jobs_data.csv') -> None:
         """Save to CSV."""
         try:
@@ -1369,6 +1458,7 @@ class JobScraper:
         except Exception as e:
             logger.error(f"CSV error: {str(e)}")
     
+    # METHOD: append_to_csv
     def append_to_csv(self, filename: str = 'jobs_data.csv') -> None:
         """Append to CSV."""
         try:
@@ -1412,6 +1502,7 @@ class JobScraper:
         except Exception as e:
             logger.error(f"CSV error: {str(e)}")
     
+    # METHOD: save_to_excel
     def save_to_excel(self, filename: str = 'jobs_data.xlsx') -> None:
         """Save to Excel."""
         try:
@@ -1455,6 +1546,7 @@ class JobScraper:
         except Exception as e:
             logger.error(f"Excel error: {str(e)}")
     
+    # METHOD: append_to_excel
     def append_to_excel(self, filename: str = 'jobs_data.xlsx') -> None:
         """Append to Excel."""
         try:
@@ -1504,6 +1596,7 @@ class JobScraper:
         except Exception as e:
             logger.error(f"Excel error: {str(e)}")
     
+    # METHOD: display_summary
     def display_summary(self, show_archived: bool = False) -> None:
         """Display summary."""
         print("\n" + "="*80)
@@ -1562,6 +1655,7 @@ class JobScraper:
         
         print("\n" + "="*80)
     
+    # METHOD: _get_status_emoji
     def _get_status_emoji(self, status: str) -> str:
         """Get status emoji."""
         emojis = {
