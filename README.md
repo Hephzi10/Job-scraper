@@ -36,4 +36,4 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Run the application
-python job_scraper_complete.py
+python job_scraper.py
